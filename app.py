@@ -7,10 +7,15 @@ from flask_restful import Resource, Api, reqparse
 from bson.objectid import ObjectId
 
 client = MongoClient('mongodb://localhost:27017/')
-db = client.Yousicial
+db = client.Yousician
 
 app = Flask(__name__)
 api = Api(app)
+
+def init_db():
+    songs = json.load(open('songs.json'))
+    for song in songs:
+        db.songs.insert(song)
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -104,12 +109,13 @@ class SetRating(Resource):
         try:
             # invalid id
             song_id = request.form['song_id']
-            rating = int(request.form['rating'])
+            rating = float(request.form['rating'])
             try:
                 sid = ObjectId(song_id)
             except:
                 return not_found()
             if rating < 1 or rating > 5:
+                print('should go here')
                 return bad_request()
             if db.songs.count({"_id":sid}) == 0:
                 return not_found()
@@ -153,7 +159,6 @@ api.add_resource(GetRating, '/api/v1//songs/avg/rating/<string:song_id>')
 if __name__ == '__main__':
     # if the database music is empty, load json file automaticlly
     if db.songs.count() == 0:
-        songs = json.load(open('songs.json'))
-        for song in songs:
-            db.songs.insert(song)
+        init_db()
+    print(db.songs.count())
     app.run(debug=True)
