@@ -6,7 +6,7 @@
 * Activate virtual environment:
     * source env/bin/activate
 * Install requirements:
-    * pip install requirements.txt
+    * pip install -r requirements.txt
 
 ## Run the server
 
